@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom';
 import React, { useContext, useState } from 'react'
 import myContext from '../../context/data/myContext';
-
+import { Timestamp } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth,fireDB } from '../../firebase/FirebaseConfig';
 import { collection } from 'firebase/firestore';
 import {  addDoc } from 'firebase/firestore';
-// import Loader from '../../components/loader/Loader';
+import Loader from '../../components/loader/Loader';
 function Signup() {
 
 
@@ -20,6 +20,7 @@ function Signup() {
 
     const signup = async() =>{
 
+        setLoading(true);
         if(name === "" || email === "" || password === "" ){
             
             return toast.error("All fields are required");
@@ -33,20 +34,25 @@ function Signup() {
                 name:name,
                 uid: users.user.uid,
                 email:users.user.email,
-                password:password
+                // password:password
+                time:Timestamp.now()
             }
 
             const userRef = collection(fireDB,"users");
             await addDoc(userRef,user);
+            toast.success("Signup successful");
 
             setName("");
             setEmail("");
             setPassword("");
 
-            toast.success("Signup successful");
+            setLoading(false);
+
 
         }catch(error){
+            toast.error("Signup Failed");
             console.log(error)
+            setLoading(false);
         }
 
 
@@ -56,6 +62,7 @@ function Signup() {
    
     return (
         <div className=' flex justify-center items-center h-screen'>
+             {loading && <Loader/>}
             <div className=' bg-gray-800 px-10 py-10 rounded-xl '>
                 <div className="">
                     <h1 className='text-center text-white text-xl mb-4 font-bold'>Signup</h1>

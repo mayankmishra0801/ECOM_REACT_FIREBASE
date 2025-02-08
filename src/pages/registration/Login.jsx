@@ -1,6 +1,42 @@
-import { Link } from 'react-router-dom'
-
+import { Link, useNavigate } from 'react-router-dom'
+import React, { useContext, useState } from 'react'
+import myContext from '../../context/data/myContext'
+import { auth } from '../../firebase/FirebaseConfig';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { toast } from 'react-toastify';
 function Login() {
+
+    
+    const context = useContext(myContext);
+    
+    const {loading} = context;
+
+    const [email,setEmail] = useState('');
+    const [password,setPassword] = useState('');
+
+    const navigate = useNavigate();
+
+    const login = async() =>{
+          
+        try{
+           
+            const result = await signInWithEmailAndPassword(auth,email,password);
+            
+            toast.success("Login successful");
+            localStorage.setItem('user',JSON.stringify(result));
+            navigate("/");
+
+        }catch(error){
+            console.log(error)
+        }
+
+    }
+
+
+
+
+
+
    
     return (
         <div className=' flex justify-center items-center h-screen'>
@@ -10,6 +46,8 @@ function Login() {
                 </div>
                 <div>
                     <input type="email"
+                      value = {email}
+                      onChange= {(e)=>setEmail(e.target.value)}
                         name='email'
                         className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
                         placeholder='Email'
@@ -18,12 +56,15 @@ function Login() {
                 <div>
                     <input
                         type="password"
+                        value={password}
+                        onChange= {(e)=>setPassword(e.target.value)}
                         className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
                         placeholder='Password'
                     />
                 </div>
                 <div className=' flex justify-center mb-3'>
                     <button
+                        onClick={login}
                         className=' bg-yellow-500 w-full text-black font-bold  px-2 py-2 rounded-lg'>
                         Login
                     </button>
