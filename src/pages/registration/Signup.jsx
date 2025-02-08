@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import React, { useContext, useState } from 'react'
 import myContext from '../../context/data/myContext';
 
-// import { toast } from 'react-toastify';
-// import { createUserWithEmailAndPassword } from 'firebase/auth';
-// import { auth, fireDB } from '../../fireabase/FirebaseConfig';
-// import { Timestamp, addDoc, collection } from 'firebase/firestore';
+import { toast } from 'react-toastify';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth,fireDB } from '../../firebase/FirebaseConfig';
+import { collection } from 'firebase/firestore';
+import {  addDoc } from 'firebase/firestore';
 // import Loader from '../../components/loader/Loader';
 function Signup() {
+
 
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
@@ -16,7 +18,39 @@ function Signup() {
     const context = useContext(myContext);
     const { loading, setLoading } = context;
 
-    const signup = () =>{
+    const signup = async() =>{
+
+        if(name === "" || email === "" || password === "" ){
+            
+            return toast.error("All fields are required");
+        }
+       
+        try{
+            const users = await createUserWithEmailAndPassword(auth,email,password);
+            console.log(users)
+
+            const user = {
+                name:name,
+                uid: users.user.uid,
+                email:users.user.email,
+                password:password
+            }
+
+            const userRef = collection(fireDB,"users");
+            await addDoc(userRef,user);
+
+            setName("");
+            setEmail("");
+            setPassword("");
+
+            toast.success("Signup successful");
+
+        }catch(error){
+            console.log(error)
+        }
+
+
+
         console.log(name,email,password)
     }
    
