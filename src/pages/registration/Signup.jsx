@@ -1,6 +1,24 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import React, { useContext, useState } from 'react'
+import myContext from '../../context/data/myContext';
 
+// import { toast } from 'react-toastify';
+// import { createUserWithEmailAndPassword } from 'firebase/auth';
+// import { auth, fireDB } from '../../fireabase/FirebaseConfig';
+// import { Timestamp, addDoc, collection } from 'firebase/firestore';
+// import Loader from '../../components/loader/Loader';
 function Signup() {
+
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+
+    const context = useContext(myContext);
+    const { loading, setLoading } = context;
+
+    const signup = () =>{
+        console.log(name,email,password)
+    }
    
     return (
         <div className=' flex justify-center items-center h-screen'>
@@ -9,7 +27,18 @@ function Signup() {
                     <h1 className='text-center text-white text-xl mb-4 font-bold'>Signup</h1>
                 </div>
                 <div>
+                    <input type="text"
+                        value={name}
+                        onChange={(e)=>setName(e.target.value)}
+                        name='name'
+                        className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
+                        placeholder='Name'
+                    />
+                </div>
+                <div>
                     <input type="email"
+                        value={email}
+                        onChange={(e)=>setEmail(e.target.value)}
                         name='email'
                         className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
                         placeholder='Email'
@@ -18,12 +47,16 @@ function Signup() {
                 <div>
                     <input
                         type="password"
+                        value={password}
+                        onChange={(e)=>setPassword(e.target.value)}
+                        name='password'
                         className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
                         placeholder='Password'
                     />
                 </div>
                 <div className=' flex justify-center mb-3'>
                     <button
+                        onClick={signup}
                         className=' bg-red-500 w-full text-white font-bold  px-2 py-2 rounded-lg'>
                         Signup
                     </button>

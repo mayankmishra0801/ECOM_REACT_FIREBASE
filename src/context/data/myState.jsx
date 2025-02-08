@@ -17,6 +17,7 @@ function MyState(props) {
     }
   }
      
+  const [loading,setLoading] = useState(false);
 
 
 
@@ -31,7 +32,7 @@ function MyState(props) {
         
         
             // <MyContext.Provider value={{state,color}}>
-            <MyContext.Provider value={{mode,toggleMode}}>
+            <MyContext.Provider value={{mode,toggleMode,loading,setLoading}}>
 
               
                  
