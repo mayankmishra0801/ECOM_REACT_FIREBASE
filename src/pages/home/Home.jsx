@@ -5,13 +5,16 @@ import myContext from '../../context/data/myContext';
 const Home = () => {
     const context = useContext(myContext);
     console.log(context)
-    const {name,rollno} = context;
+    // const {name,rollno} = context;
+    // const {state,color} = context;
+
   return (
     // <div>Home</div>
     <Layout>
         
-<h1>Name: {name}</h1>
-<h1>Rollno: {rollno}</h1>
+{/* <h1>Name: {state.name}</h1>
+<h1>Rollno: {state.rollno}</h1> */}
+{/* <h2>Color:{color}</h2> */}
 
 
 
