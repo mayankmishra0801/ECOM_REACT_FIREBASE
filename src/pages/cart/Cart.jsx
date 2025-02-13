@@ -79,8 +79,8 @@ function Cart() {
   var options = {
     // key: process.env.REACT_APP_RAZORPAY_KEY, // Use environment variable for Razorpay key
     // key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-    key: "rzp_test_7PQwwWsQY3HbP9",
-    key_secret: "MasHuTy7E7KFUJ6TG872wVvb",
+    key: "",
+    key_secret: "",
     amount: parseInt(grandTotal * 100),
     currency: "INR",
     order_receipt: 'order_rcptid_' + name,
