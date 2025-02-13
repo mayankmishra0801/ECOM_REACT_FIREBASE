@@ -4,12 +4,13 @@ import myContext from '../../context/data/myContext'
 import { auth } from '../../firebase/FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import Loader from '../../components/loader/Loader';
 function Login() {
 
     
     const context = useContext(myContext);
     
-    const {loading} = context;
+    const {loading,setLoading} = context;
 
     const [email,setEmail] = useState('');
     const [password,setPassword] = useState('');
@@ -17,17 +18,31 @@ function Login() {
     const navigate = useNavigate();
 
     const login = async() =>{
+
+        setLoading(true);
           
         try{
            
             const result = await signInWithEmailAndPassword(auth,email,password);
             
-            toast.success("Login successful");
+            toast.success("Login successful",{
+                position:"top-right",
+                autoClose:2000,
+                hideProgressBar:true,
+                closeOnClick:true,
+                pauseOnHover:true,
+                draggable:true,
+                progress:undefined,
+                theme:"colored",
+            });
             localStorage.setItem('user',JSON.stringify(result));
             navigate("/");
+            setLoading(false);
 
         }catch(error){
             console.log(error)
+            setLoading(false);
+            toast.error("Login failed");
         }
 
     }
@@ -40,6 +55,10 @@ function Login() {
    
     return (
         <div className=' flex justify-center items-center h-screen'>
+
+            {loading && <Loader/>}
+
+
             <div className=' bg-gray-800 px-10 py-10 rounded-xl '>
                 <div className="">
                     <h1 className='text-center text-white text-xl mb-4 font-bold'>Login</h1>
