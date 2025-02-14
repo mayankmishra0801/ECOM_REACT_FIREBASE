@@ -9,8 +9,77 @@ import { Link } from 'react-router-dom';
 
 function DashboardTab() {
     const context = useContext(myContext)
-    const { mode, product, edithandle, deleteProduct, order, user } = context
+    const { mode, product, edithandle, deleteProduct, order, user } = context;
 
+    const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('price');
+  const [sortOrder, setSortOrder] = useState('asc');
+  const [productPage, setProductPage] = useState(1);
+  const [orderPage, setOrderPage] = useState(1);
+
+  const itemsPerPage = 5;
+  const indexOfLastProduct = productPage * itemsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - itemsPerPage;
+  const indexOfLastOrder = orderPage * itemsPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - itemsPerPage;
+
+
+  const filteredProducts = product.filter(item => 
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.price.toString().includes(searchQuery) ||  // Price as string comparison
+    item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.date.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
+  const sortedProducts = filteredProducts.sort((a, b) => {
+    if (sortBy === 'price') {
+      return sortOrder === 'asc' ? a.price - b.price : b.price - a.price;
+    } else if (sortBy === 'date') {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+    }
+    return 0;
+  });
+
+
+  const currentProducts = sortedProducts.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  // Filter orders by name, address, pincode, phone number, email, and date
+  const filteredOrders = order.filter(item =>
+    item.paymentId.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.customer?.name.toLowerCase().includes(searchQuery.toLowerCase()) || // Use optional chaining
+    item.customer?.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.customer?.pincode.toString().includes(searchQuery) ||
+    item.customer?.phoneNumber.includes(searchQuery) ||
+    item.customer?.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.date.toLowerCase().includes(searchQuery.toLowerCase())
+);
+
+
+    // Sorting orders
+    const sortedOrders = filteredOrders.sort((a, b) => {
+        if (sortBy === 'price') {
+          return sortOrder === 'asc' ? a.cartItems[0].price - b.cartItems[0].price : b.cartItems[0].price - a.cartItems[0].price;
+        } else if (sortBy === 'date') {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        }
+        return 0;
+      });
+    
+      const currentOrders = sortedOrders.slice(indexOfFirstOrder, indexOfLastOrder);
+    
+      // Pagination logic for products and orders
+      const nextProductPage = () => { if (productPage < Math.ceil(product.length / itemsPerPage)) setProductPage(productPage + 1); };
+      const prevProductPage = () => { if (productPage > 1) setProductPage(productPage - 1); };
+      const nextOrderPage = () => { if (orderPage < Math.ceil(order.length / itemsPerPage)) setOrderPage(orderPage + 1); };
+      const prevOrderPage = () => { if (orderPage > 1) setOrderPage(orderPage - 1); };
+
+
+    
     // console.log(product)
     let [isOpen, setIsOpen] = useState(false)
 
@@ -55,6 +124,34 @@ function DashboardTab() {
                         <TabPanel>
                             <div className='  px-4 md:px-0 mb-16'>
                                 <h1 className=' text-center mb-5 text-3xl font-semibold underline' style={{ color: mode === 'dark' ? 'white' : '' }}>Product Details</h1>
+
+                                <div className="flex justify-between mb-4">
+                <input
+                  type="text"
+                  placeholder="Search Products"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                >
+                  <option value="price">Price</option>
+                  <option value="date">Date</option>
+                </select>
+
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+
                                 <div className=" flex justify-end">
                                     <button
                                         onClick={add}
@@ -63,6 +160,7 @@ function DashboardTab() {
                                             Add Product <FaCartPlus size={20} />
                                         </div></button>
                                 </div>
+                               
                                 <div className="relative overflow-x-auto ">
                                     <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400  ">
                                         <thead className="text-xs border border-gray-600 text-black uppercase bg-gray-200 shadow-[inset_0_0_8px_rgba(0,0,0,0.6)]" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
@@ -90,28 +188,29 @@ function DashboardTab() {
                                                 </th>
                                             </tr>
                                         </thead>
-                                        {product.map((item, index) => {
-                                            const { title, price, imageUrl, category, description, date, id } = item;
-                                            return (
-                                                <tbody key={id || index} className=''>
-                                                    <tr className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
+                                       
+                                            {/* const { title, price, imageUrl, category, description, date, id } = item; */}
+                                            {/* return ( */}
+                                                <tbody className=''>
+                                                {currentProducts.map((item, index) => (
+                                                    <tr key={item.id || index} className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
                                                         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
                                                             {index + 1}.
                                                         </td>
                                                         <th scope="row" className="px-6 py-4 font-medium text-black whitespace-nowrap">
-                                                            <img className='w-16' src={imageUrl} alt="img" />
+                                                            <img className='w-16' src={item.imageUrl} alt="img" />
                                                         </th>
                                                         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                            {title}
+                                                            {item.title}
                                                         </td>
                                                         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                            ₹{price}
+                                                            ₹{item.price}
                                                         </td>
                                                         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                            {category}
+                                                            {item.category}
                                                         </td>
                                                         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                            {date}
+                                                            {item.date}
                                                         </td>
                                                         <td className="px-6 py-4">
                                                             <div className=" flex gap-2">
@@ -134,11 +233,19 @@ function DashboardTab() {
                                                             </div>
                                                         </td>
                                                     </tr>
+                                                ))}
 
                                                 </tbody>
-                                            )
-                                        })}
+                                            {/* ) */}
+                                        {/* })} */}
                                     </table>
+
+                                    <div className="flex justify-center mt-4">
+                <button onClick={prevProductPage} disabled={productPage === 1}>Previous</button>
+                <button onClick={nextProductPage} disabled={productPage === Math.ceil(product.length / itemsPerPage)}>Next</button>
+              </div>
+                                  
+
 
                                 </div>
                             </div>
@@ -149,8 +256,38 @@ function DashboardTab() {
                             <div className="relative overflow-x-auto mb-16">
                                 <h1 className=' text-center mb-5 text-3xl font-semibold underline' style={{ color: mode === 'dark' ? 'white' : '' }}>Order Details</h1>
 
-                                {order.map((allorder,index)=>{
-                                    return(<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400" >
+
+                                     {/* Search and Sort for Orders */}
+              <div className="flex justify-between mb-4">
+                <input
+                  type="text"
+                  placeholder="Search Orders"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                />
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                >
+                  <option value="price">Price</option>
+                  <option value="date">Date</option>
+                </select>
+
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-gray-300"
+                >
+                  <option value="asc">Ascending</option>
+                  <option value="desc">Descending</option>
+                </select>
+              </div>
+
+
+                                {/* {order.map((allorder,index)=>{ */}
+                                    <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400" >
                                     <thead className="text-xs text-black uppercase bg-gray-200 " style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
                                         <tr>
                                             <th scope="col" className="px-6 py-3">
@@ -188,26 +325,32 @@ function DashboardTab() {
                                             </th>
                                         </tr>
                                     </thead>
-                                    {allorder.cartItems.map((item,index)=>{
-                                        // console.log(allorder)
-                                        const {title,description,category,imageUrl,price} = item;
-                                        return(
+                                    {/* {allorder.cartItems.map((item,index)=>{ */}
+                                        {/* // console.log(allorder) */}
+                                        {/* return( */}
                                             <tbody>
-                                        <tr className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
+                                                 {currentOrders.map((allorder, index) => {
+                                                     console.log(allorder)
+
+                                        // const {title,description,category,imageUrl,price} = allorder;
+return(
+                                        <tr key={allorder.id || index} className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
                                             <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
+                                            
+                                               
                                                 {allorder.paymentId}
                                             </td>
                                             <th scope="row" className="px-6 py-4 font-medium text-black whitespace-nowrap">
-                                                <img className='w-16' src={imageUrl} alt="img" />
+                                                <img className='w-16' src={allorder.cartItems[0].imageUrl} alt="img" />
                                             </th>
                                             <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                {title}
+                                                {allorder.cartItems[0].title}
                                             </td>
                                             <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                ₹{price}
+                                                ₹{allorder.cartItems[0].price}
                                             </td>
                                             <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                               {category}
+                                               {allorder?.cartItems[0].category}
                                             </td>
 
                                             <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
@@ -230,12 +373,28 @@ function DashboardTab() {
                                             </td>
 
                                         </tr>
-
+                                                 );
+                                                }
+                                                )}
+                                                 {/* ))} */}
                                     </tbody>
-                                        )
-                                    })}
-                                </table>)
-                                })}
+                                        {/* // ) */}
+                                    {/* // })} */}
+                                </table>
+                                {/* ) */}
+                                {/* // })} */}
+                                
+                                                {/* ) */}
+                                                
+
+<div className="flex justify-center mt-4">
+                <button onClick={prevOrderPage} disabled={orderPage === 1}>Previous</button>
+                <button onClick={nextOrderPage} disabled={orderPage === Math.ceil(order.length / itemsPerPage)}>Next</button>
+              </div>
+
+
+
+                              
                             </div>
                         </TabPanel>
 
@@ -286,6 +445,15 @@ function DashboardTab() {
                                     )
                                    })}
                                 </table>
+
+
+            
+
+
+
+
+
+
                             </div>
                         </TabPanel>
 
