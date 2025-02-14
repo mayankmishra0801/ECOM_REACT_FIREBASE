@@ -2,7 +2,9 @@ import { Dialog, Transition } from '@headlessui/react'
 import { Fragment, useState } from 'react'
 
 export default function Modal(
+
     {
+        isAnyItemsSelected,
         name,
         address,
         pincode,
@@ -21,7 +23,13 @@ export default function Modal(
     }
 
     function openModal() {
-        setIsOpen(true)
+        if(isAnyItemsSelected){
+            setIsOpen(true)
+
+        }
+        else {
+            toast.error("Please select at least one item to proceed.");
+          }
     }
 
     return (

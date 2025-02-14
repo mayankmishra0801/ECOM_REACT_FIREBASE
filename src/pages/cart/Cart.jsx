@@ -18,6 +18,28 @@ function Cart() {
 
   const  cartItems = useSelector((state)=>state.cart);
 
+  const [selectedItems,setSelecteditems] = useState([]);
+
+//   const [isModalOpen,setIsModalOpen] = useState(false);
+  const [isAnyItemsSelected,setIsAnyItemSelected] = useState(false);
+
+  const toggleItemSelection = (item) =>{
+    setSelecteditems((prevSelectedItems)=>
+     prevSelectedItems.includes(item)? prevSelectedItems.filter((selectedItems)=>selectedItems !== item)
+    : [...prevSelectedItems,item]
+    )
+  }
+
+  useEffect(()=>{
+    setIsAnyItemSelected(selectedItems.length > 0)
+  },[selectedItems])
+
+  useEffect(() => {
+    // Save cart items to localStorage whenever they change
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  }, [cartItems]);
+  
+
   const deleteCart =  (item) =>{
     dispatch(deleteFromCart(item));
     toast.success("Delete Cart");
@@ -28,14 +50,22 @@ function Cart() {
   },[cartItems])
 
   const [totalAmount,setTotalAmount] = useState(0);
-  useEffect(()=>{
+//   useEffect(()=>{
+//     let temp = 0;
+//     cartItems.forEach((cartItem)=>{
+//         temp = temp + parseInt(cartItem.price);
+//     })
+//     setTotalAmount(temp);
+//     console.log(temp)
+//   },[cartItems])
+
+useEffect(()=>{
     let temp = 0;
-    cartItems.forEach((cartItem)=>{
-        temp = temp + parseInt(cartItem.price);
-    })
+    selectedItems.forEach((cartItems)=>{
+        temp += parseInt(cartItems.price);
+    });
     setTotalAmount(temp);
-    console.log(temp)
-  },[cartItems])
+},[selectedItems])
    
   console.log(cartItems)
 
@@ -79,8 +109,8 @@ function Cart() {
   var options = {
     // key: process.env.REACT_APP_RAZORPAY_KEY, // Use environment variable for Razorpay key
     // key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-    key: "",
-    key_secret: "",
+    key: "rzp_test_7PQwwWsQY3HbP9",
+    key_secret: "MasHuTy7E7KFUJ6TG872wVvb",
     amount: parseInt(grandTotal * 100),
     currency: "INR",
     order_receipt: 'order_rcptid_' + name,
@@ -112,6 +142,15 @@ function Cart() {
       try {
         const orderRef= collection(fireDB,"order");
         addDoc(orderRef,orderInfo)
+        selectedItems.forEach(item => {
+            dispatch(deleteFromCart(item));
+          });
+          let updatedCartItems = cartItems.filter(item => !selectedItems.includes(item));
+        localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+     setSelecteditems([])
+     setTotalAmount(0)
+        // Optionally, show the success message after removing the items from cart
+        // toast.success("Selected items removed from the cart");
         const result = addDoc(collection(fireDB, "orders"), orderInfo)
       } catch (error) {
         console.log(error)
@@ -160,6 +199,14 @@ function Cart() {
                             </svg>
           
                           </div>
+
+
+                         <input type="checkbox" checked={selectedItems.includes(item)}
+                          onChange={()=>toggleItemSelection(item)}/>
+
+
+
+
                         </div>
                       </div>
 
@@ -199,6 +246,7 @@ function Cart() {
 
 
 <Modal
+ isAnyItemsSelected={isAnyItemsSelected}
  name={name}
  addressInfo={address}
  pincode={pincode}
