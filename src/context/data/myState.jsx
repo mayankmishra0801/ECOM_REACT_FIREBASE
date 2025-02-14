@@ -137,30 +137,38 @@ function MyState(props) {
     //         const color = "red"
 
     const edithandle = (item)=>{
-        setProduct(item);
+        setproducts(item);
 
     }
 
     const updateProduct = async()=>{
       setLoading(true);
       try{
-        if (products && products.id) {
-        await setDoc(doc(fireDB,'products',products?.id),products);
+         if (!products || !products.id) {
+            toast.error("Product data or id missing");
+            setLoading(false);
+            return;
+        }
+        // if (products && products.id) {
+        await setDoc(doc(fireDB,'products',products.id),products);
         toast.success("Product updated successfully");
         setTimeout(()=>{
             window.location.href='/dashboard';
         },800)
         getProductData();
-    }else{
-        toast.error("Product data or id missing");
-    }
-        setLoading(false);
-
-      }catch(error){
-          
-          setLoading(false);
-          console.log(error);
+    // }else{
+    //     toast.error("Product data or id missing");
+    // }
       }
+
+      catch(error){
+          
+
+          console.log(error);
+          toast.error("Error updating product");
+      }
+      setLoading(false);
+
     //   setProducts("");
     }
 

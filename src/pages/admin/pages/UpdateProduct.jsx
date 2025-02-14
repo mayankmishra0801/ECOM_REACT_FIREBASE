@@ -1,15 +1,37 @@
 import React, { useContext } from 'react'
 import myContext from '../../../context/data/myContext';
-
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 function UpdateProduct() {
     const context = useContext(myContext);
     const { products, setproducts, updateProduct } = context;
+    const navigate = useNavigate();
 
-    const title = products?.title || '';
-    const price = products?.price || '';
-    const imageUrl = products?.imageUrl || '';
-    const category = products?.category || '';
-    const description = products?.description || '';
+    // const title = products?.title || '';
+    // const price = products?.price || '';
+    // const imageUrl = products?.imageUrl || '';
+    // const category = products?.category || '';
+    // const description = products?.description || '';
+
+    const { title, price, imageUrl, category, description, id } = products;
+    const handleUpdate = async () => {
+        if (!title || !price || !imageUrl || !category || !description) {
+            toast.error("All fields are required!");
+            return;
+        }
+
+        try {
+            // Proceed with the update logic
+            await updateProduct();  // Assuming updateProduct handles the Firestore update
+            toast.success("Product updated successfully");
+
+            // Navigate to the dashboard after update
+            navigate('/dashboard');
+        } catch (error) {
+            console.log(error);
+            toast.error("Error updating product");
+        }
+    };
     return (
         <div>
             <div className=' flex justify-center items-center h-screen'>
@@ -19,7 +41,7 @@ function UpdateProduct() {
                     </div>
                     <div>
                         <input type="text"
-                            value={title}
+                            value={title || ''}
                             onChange={(e) => setproducts({ ...products, title: e.target.value })}
                             name='title'
                             className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
@@ -28,7 +50,7 @@ function UpdateProduct() {
                     </div>
                     <div>
                         <input type="text"
-                            value={price}
+                            value={price || ''}
                             onChange={(e) => setproducts({ ...products, price: e.target.value })}
                             name='price'
                             className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
@@ -37,7 +59,7 @@ function UpdateProduct() {
                     </div>
                     <div>
                         <input type="text"
-                            value={imageUrl}
+                            value={imageUrl || ''}
                             onChange={(e) => setproducts({ ...products, imageUrl: e.target.value })}
                             name='imageurl'
                             className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
@@ -46,7 +68,7 @@ function UpdateProduct() {
                     </div>
                     <div>
                         <input type="text"
-                            value={category}
+                            value={category || ''}
                             onChange={(e) => setproducts({ ...products, category: e.target.value })}
                             name='category'
                             className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
@@ -55,7 +77,7 @@ function UpdateProduct() {
                     </div>
                     <div>
                         <textarea cols="30" rows="10" name='title'
-                         value={description}
+                         value={description || ''}
                          onChange={(e) => setproducts({ ...products, description: e.target.value })}
                             className=' bg-gray-600 mb-4 px-2 py-2 w-full lg:w-[20em] rounded-lg text-white placeholder:text-gray-200 outline-none'
                             placeholder='Product desc'>

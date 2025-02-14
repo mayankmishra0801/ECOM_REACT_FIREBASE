@@ -4,6 +4,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate
 } from "react-router-dom";
 import Home from './pages/home/Home'
 import Order from './pages/Order/Order'
@@ -18,17 +19,12 @@ import AddProduct from './pages/admin/pages/AddProduct';
 import UpdateProduct from './pages/admin/pages/UpdateProduct';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Navigate } from 'react-router-dom';
 import Allproducts from './pages/allproducts/Allproducts';
 
 const App = () => {
   return (
      
     <MyState>
-
-
-
-
     <Router>
       <Routes>
         <Route path="/" element={<Home/>} />
