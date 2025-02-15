@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import myContext from '../../../context/data/myContext';
-import Layout from '../../../components/layout/layout';
 import { MdOutlineProductionQuantityLimits } from 'react-icons/md'
 import { FaUser, FaCartPlus } from 'react-icons/fa';
 import { AiFillShopping, AiFillPlusCircle, AiFillDelete } from 'react-icons/ai';
@@ -429,12 +428,16 @@ return(
        
     </tr>
 </thead>
+<tbody >
+
 {user.map((item,index)=>{
-// console.log("khhhhj",user)
 const {name,uid,email,date} = item;
+
+// console.log("khhhhj",user)
 return(
-    <tbody>
-    <tr className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
+    // {user.map((item, index) => {
+
+    <tr key={uid} className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
         <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
            {index + 1}.
         </td>
@@ -449,9 +452,8 @@ return(
         </td>
 
     </tr>
+)})}
 </tbody>
-)
-})}
 </table>
 
 
@@ -461,7 +463,7 @@ return(
 )}
                                
                                
-                               
+                          
 
 
             
