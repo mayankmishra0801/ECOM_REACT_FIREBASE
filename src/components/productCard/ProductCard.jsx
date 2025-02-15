@@ -13,14 +13,42 @@ function ProductCard() {
     const cartItems = useSelector((state)=> state.cart);
     console.log(cartItems)
 
-    const addCart = (product)=> {
+    // const addCart = (product)=> {
+    //     dispatch(addToCart(product));
+    //     toast.success('add to cart');
+
+    // }
+
+    const addCart = (product) => {
+        // Add to Redux cart
         dispatch(addToCart(product));
-        toast.success('add to cart');
-
-    }
-
+    
+        // Retrieve the user data
+        const user = JSON.parse(localStorage.getItem('user'));
+    
+        // If the user is logged in, store the updated cart in localStorage with user-specific key
+        if (user) {
+            const currentCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+            currentCart.push(product);
+            localStorage.setItem(`cart_${user.uid}`, JSON.stringify(currentCart));  // Save to user-specific cart
+        } else {
+            // If no user is logged in, save cart globally
+            const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+            currentCart.push(product);
+            localStorage.setItem('cart', JSON.stringify(currentCart));  // Save to general cart
+        }
+    
+        toast.success('Added to cart');
+    };
+    
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
+        const user = JSON.parse(localStorage.getItem('user'));
+        if(user && user.uid){
+            localStorage.setItem(`cart_${user.uid}`,JSON.stringify(cartItems));
+        }else{
+            localStorage.setItem('cart',JSON.stringify(cartItems));
+        }
+        // localStorage.setItem('cart', JSON.stringify(cartItems));
     }, [cartItems])
     return (
         <section className="text-gray-600 body-font">

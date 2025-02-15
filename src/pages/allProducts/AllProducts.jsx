@@ -16,11 +16,33 @@ function Allproducts() {
   const cartItems = useSelector((state)=> state.cart);
   console.log(cartItems)
 
-  const addCart = (product)=> {
-      dispatch(addToCart(product));
-      toast.success('add to cart');
+//   const addCart = (product)=> {
+//       dispatch(addToCart(product));
+//       toast.success('add to cart');
 
-  }
+//   }
+
+const addCart = (product) => {
+    // Add to Redux cart
+    dispatch(addToCart(product));
+
+    // Retrieve the user data
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // If the user is logged in, store the updated cart in localStorage with user-specific key
+    if (user) {
+        const currentCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+        currentCart.push(product);
+        localStorage.setItem(`cart_${user.uid}`, JSON.stringify(currentCart));  // Save to user-specific cart
+    } else {
+        // If no user is logged in, save cart globally
+        const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+        currentCart.push(product);
+        localStorage.setItem('cart', JSON.stringify(currentCart));  // Save to general cart
+    }
+
+    toast.success('Added to cart');
+};
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 4;
@@ -38,9 +60,23 @@ function Allproducts() {
    const totalPages = Math.ceil(filteredProducts.length / itemsPerPage)
 
 
-  useEffect(() => {
-      localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems])
+//   useEffect(() => {
+//       localStorage.setItem('cart', JSON.stringify(cartItems));
+//   }, [cartItems])
+
+useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));  // Get user data from localStorage
+
+    if (user) {
+        // If user exists, store cart items under the user-specific key
+        localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cartItems));
+    }
+    else {
+        // If no user is logged in, store cart items globally under a general cart key
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+    }
+}, [cartItems]);
+
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [])

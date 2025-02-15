@@ -7,6 +7,7 @@ import { deleteFromCart } from '../../redux/cartSlice';
 import { toast } from 'react-toastify';
 import { addDoc, collection } from 'firebase/firestore';
 import { fireDB } from '../../firebase/FirebaseConfig';
+import { setCartItems } from '../../redux/cartSlice';
 // import Loader from '../../components/loader/Loader';
 // import { configDotenv } from 'dotenv';
 function Cart() {
@@ -15,6 +16,7 @@ function Cart() {
   const { mode } = context;
 
   const dispatch = useDispatch();
+  
 
   const  cartItems = useSelector((state)=>state.cart);
 
@@ -34,20 +36,85 @@ function Cart() {
     setIsAnyItemSelected(selectedItems.length > 0)
   },[selectedItems])
 
-  useEffect(() => {
-    // Save cart items to localStorage whenever they change
-    localStorage.setItem('cart', JSON.stringify(cartItems));
-  }, [cartItems]);
+//   useEffect(() => {
+//     // Save cart items to localStorage whenever they change
+//     localStorage.setItem('cart', JSON.stringify(cartItems));
+//   }, [cartItems]);
   
 
-  const deleteCart =  (item) =>{
-    dispatch(deleteFromCart(item));
-    toast.success("Delete Cart");
-  }
+//   const deleteCart =  (item) =>{
+//     dispatch(deleteFromCart(item));
+//     toast.success("Delete Cart");
+//   }
 
-  useEffect(()=>{
-    localStorage.setItem('cart',JSON.stringify(cartItems));
-  },[cartItems])
+const deleteCart = (item) => {
+    // Remove from Redux cart
+    dispatch(deleteFromCart(item));
+    
+    // Retrieve the user data
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    // If the user is logged in, update their specific cart
+    if (user) {
+        const currentCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+        const updatedCart = currentCart.filter(cartItem => cartItem.id !== item.id);
+        localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCart));  // Save updated cart
+    } else {
+        // For guest users, remove from the general cart
+        const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+        const updatedCart = currentCart.filter(cartItem => cartItem.id !== item.id);
+        localStorage.setItem('cart', JSON.stringify(updatedCart));  // Save updated cart
+    }
+
+    toast.success("Cart item deleted");
+};
+
+
+//   useEffect(()=>{
+//     localStorage.setItem('cart',JSON.stringify(cartItems));
+//   },[cartItems])
+
+useEffect(() => {
+    // Get user ID from localStorage
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        // Save cart items to localStorage for the logged-in user (using their UID)
+        localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cartItems));
+    }else{
+        localStorage.setItem('cart', JSON.stringify(cartItems));
+    }
+}, [cartItems]);
+
+
+// useEffect(() => {
+//     const user = JSON.parse(localStorage.getItem('user'));
+//     if (user) {
+//       // Load the cart for the specific user
+//       const savedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`));
+//       if (savedCart) {
+//         dispatch(setCartItems(savedCart)); // Dispatch to set cart in Redux
+//       }
+//     }
+//   }, []);
+
+useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+        // Fetch user-specific cart from localStorage and update Redux
+        const savedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`));
+        if (savedCart) {
+            dispatch(setCartItems(savedCart));  // Set Redux store with saved cart
+        }
+    } else {
+        // Fetch global cart if user is not logged in
+        const savedCart = JSON.parse(localStorage.getItem('cart'));
+        if (savedCart) {
+            dispatch(setCartItems(savedCart));  // Set Redux store with saved cart
+        }
+    }
+}, [dispatch]);
+
+  
 
   const [totalAmount,setTotalAmount] = useState(0);
 //   useEffect(()=>{
@@ -107,10 +174,8 @@ useEffect(()=>{
   }
 
   var options = {
-    // key: process.env.REACT_APP_RAZORPAY_KEY, // Use environment variable for Razorpay key
-    // key_secret: process.env.REACT_APP_RAZORPAY_KEY_SECRET,
-    key: "rzp_test_7PQwwWsQY3HbP9",
-    key_secret: "MasHuTy7E7KFUJ6TG872wVvb",
+    key: import.meta.env.VITE_RAZORPAY_KEY, // Use environment variable for Razorpay key
+    key_secret: import.meta.env.VITE_RAZORPAY_KEY_SECRET,
     amount: parseInt(grandTotal * 100),
     currency: "INR",
     order_receipt: 'order_rcptid_' + name,
@@ -146,7 +211,13 @@ useEffect(()=>{
             dispatch(deleteFromCart(item));
           });
           let updatedCartItems = cartItems.filter(item => !selectedItems.includes(item));
-        localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+        // localStorage.setItem('cart', JSON.stringify(updatedCartItems));
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (user) {
+            localStorage.setItem(`cart_${user.uid}`, JSON.stringify(updatedCartItems));  // Save to localStorage under user-specific key
+        } else {
+            localStorage.setItem('cart', JSON.stringify(updatedCartItems));  // Save to general cart if no user is logged in
+        }
      setSelecteditems([])
      setTotalAmount(0)
         // Optionally, show the success message after removing the items from cart

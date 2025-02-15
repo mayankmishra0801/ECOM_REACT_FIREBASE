@@ -4,7 +4,9 @@ import myContext from '../../context/data/myContext'
 import { auth } from '../../firebase/FirebaseConfig';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import { useDispatch } from 'react-redux';
 import Loader from '../../components/loader/Loader';
+import {setCartItems} from '../../redux/cartSlice'
 function Login() {
 
     
@@ -16,6 +18,7 @@ function Login() {
     const [password,setPassword] = useState('');
 
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const login = async() =>{
 
@@ -35,7 +38,15 @@ function Login() {
                 progress:undefined,
                 theme:"colored",
             });
+            const user = result.user;
             localStorage.setItem('user',JSON.stringify(result));
+
+            // const savedCart = JSON.parse(localStorage.getItem('cart'));
+            const savedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`));
+
+            if(savedCart){
+                dispatch(setCartItems(savedCart));
+            }
             navigate("/");
             setLoading(false);
 

@@ -12,18 +12,26 @@ import { useSelector } from 'react-redux';
 export default function Navbar() {
     const [open,setOpen] = useState(false);
 
+    const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
      
     const user = JSON.parse(localStorage.getItem('user'));
 
 
     const logout = () =>{
-        localStorage.clear('user');
+        const user = JSON.parse(localStorage.getItem('user'));
+
+        if (user && user.uid) {
+            // Clear only the cart data for the logged-out user
+            localStorage.removeItem(`cart_${user.user.uid}`);
+        }
+        // localStorage.clear('user');
+        localStorage.removeItem('user');
         window.location.href = '/login';
     }
 
     const cartItems = useSelector((state)=>state.cart);
 
-   console.log(user.user.email)
+//    console.log(user.user.email)
     const context = useContext(myContext);
     const {mode,toggleMode} = context;
      
@@ -81,7 +89,7 @@ export default function Navbar() {
 
 
 
-                 {user?.user?.email === 'mayank@gmail.com' ? 
+                 {user?.user?.email === adminEmail ? 
                  <div className="flow-root">
                  <Link to={'/dashboard'} className="-m-2 block p-2 font-medium text-gray-900" style={{ color: mode === 'dark' ? 'white' : '', }}>
                    admin
@@ -127,7 +135,7 @@ export default function Navbar() {
 
     <header className="relative bg-white">
     <p className="flex h-10 items-center justify-center bg-pink-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8" style={{ backgroundColor: mode === 'dark' ? 'rgb(62 64 66)' : '', color: mode === 'dark' ? 'white' : '', }}>
-      Get free delivery on orders over ₹300
+      Get delivery on shipping price of ₹100
     </p>
 
     <nav aria-label="Top" className="bg-gray-100 px-4 sm:px-6 lg:px-8 shadow-xl " style={{ backgroundColor: mode === 'dark' ? '#282c34' : '', color: mode === 'dark' ? 'white' : '', }}>
@@ -164,8 +172,9 @@ export default function Navbar() {
                 Order
               </Link>
             
+              {/* const user = JSON.parse(localStorage.getItem('user')) || {}; */}
 
-            {user.user.email === 'mayank@gmail.com' ?
+            {user?.user?.email === adminEmail ?
         <Link to={'/dashboard'} className="text-sm font-medium text-gray-700 " style={{ color: mode === 'dark' ? 'white' : '', }}>
         Admin
       </Link> 

@@ -7,12 +7,14 @@ import { doc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-toastify';
 import { addToCart } from '../../redux/cartSlice';
 import { fireDB } from '../../firebase/FirebaseConfig';
+import { setCartItems } from '../../redux/cartSlice';
 function ProductInfo() {
     const context = useContext(myContext);
     const { loading, setLoading } = context;
 
     const [products, setProducts] = useState('')
     const params = useParams()
+    const dispatch = useDispatch();
     // console.log(products.title)
 
     const getProductData = async () => {
@@ -35,9 +37,23 @@ function ProductInfo() {
 
     }, [])
 
+    useEffect(() => {
+        const user = JSON.parse(localStorage.getItem('user'));  // Get the current user from localStorage
+        if (user) {
+            // Check if there's cart data stored in localStorage for this user
+            const savedCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`));
+    
+            if (savedCart) {
+                // If there is cart data for the user, dispatch the action to set the cart in Redux
+                dispatch(setCartItems(savedCart));
+            }
+        }
+    }, [dispatch]);  // Empty dependency array ensures this runs only once when the component mounts
+    
 
 
-    const dispatch = useDispatch()
+
+    // const dispatch = useDispatch()
     const cartItems = useSelector((state) => state.cart)
     // console.log(cartItems)
     const navigate = useNavigate();
@@ -48,13 +64,48 @@ function ProductInfo() {
     //     toast.success('add to cart');
     // }
 
+    // const addCart = (product) => {
+    //     dispatch(addToCart(product));  // Add to Redux cart
+
+    //     const user = JSON.parse(localStorage.getItem('user'));
+    //     if (user) {
+    //         const currentCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+    //         currentCart.push(product);
+    //         localStorage.setItem(`cart_${user.uid}`, JSON.stringify(currentCart));  // Update cart in localStorage
+    //     }
+
+    //     toast.success('Added to cart');
+    // };
+
+    const addCart = (product) => {
+        // Add to Redux cart
+        dispatch(addToCart(product));
+    
+        // Retrieve the user data
+        const user = JSON.parse(localStorage.getItem('user'));
+    
+        // If the user is logged in, store the updated cart in localStorage with user-specific key
+        if (user) {
+            const currentCart = JSON.parse(localStorage.getItem(`cart_${user.uid}`)) || [];
+            currentCart.push(product);
+            localStorage.setItem(`cart_${user.uid}`, JSON.stringify(currentCart));  // Save to user-specific cart
+        } else {
+            // If no user is logged in, save cart globally
+            const currentCart = JSON.parse(localStorage.getItem('cart')) || [];
+            currentCart.push(product);
+            localStorage.setItem('cart', JSON.stringify(currentCart));  // Save to general cart
+        }
+    
+        toast.success('Added to cart');
+    };
+    
     const goToCart = () =>{
         navigate('/cart');
     }
 
-    useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cartItems));
-    }, [cartItems])
+    // useEffect(() => {
+    //     localStorage.setItem('cart', JSON.stringify(cartItems));
+    // }, [cartItems])
 
     return (
         <Layout>
@@ -180,6 +231,7 @@ function ProductInfo() {
                                 <span className="title-font font-medium text-2xl text-gray-900">
                                 ₹{products.price}
                                 </span>
+                                <button onClick={() => addCart(products)}>Add to Cart</button>
                                 <button  onClick={goToCart} className="flex ml-auto text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded">
                                     Go To Cart
                                 </button>
