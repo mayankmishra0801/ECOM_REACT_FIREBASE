@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react'
-import Layout from '../../components/layout/Layout'
+import Layout from '../../components/layout/layout'
 import myContext from '../../context/data/myContext';
 import { useParams,useNavigate } from 'react-router';
 import { useDispatch, useSelector } from 'react-redux';
