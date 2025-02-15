@@ -88,8 +88,8 @@ export const ProtectedRoute = ({children}) => {
 
 const ProtectedRouteForAdmin = ({children}) => {
   const admin = JSON.parse(localStorage.getItem('user'));
-    
-  if(admin.user.email === 'mayank@gmail.com'){
+  const adminEmail = import.meta.env.VITE_ADMIN_EMAIL;
+  if(admin && admin.user && admin.user.email === adminEmail){
       return children;
     }else{
       return <Navigate to={'/login'}/>
