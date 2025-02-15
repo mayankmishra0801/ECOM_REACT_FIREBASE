@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import myContext from '../../../context/data/myContext';
-import Layout from '../../../components/layout/Layout';
+import Layout from '../../../components/layout/layout';
 import { MdOutlineProductionQuantityLimits } from 'react-icons/md'
 import { FaUser, FaCartPlus } from 'react-icons/fa';
 import { AiFillShopping, AiFillPlusCircle, AiFillDelete } from 'react-icons/ai';
@@ -9,6 +9,8 @@ import { Link } from 'react-router-dom';
 
 function DashboardTab() {
     const context = useContext(myContext)
+    // const { user } = useContext(myContext);
+
     const { mode, product, edithandle, deleteProduct, order, user } = context;
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -402,49 +404,64 @@ return(
                             {/* <User addressInfo={addressInfo} setAddressInfo={setAddressInfo} setLoading={setLoading} /> */}
                             <div className="relative overflow-x-auto mb-10">
                                 <h1 className=' text-center mb-5 text-3xl font-semibold underline' style={{ color: mode === 'dark' ? 'white' : '' }}>User Details</h1>
-                                <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-                                    <thead className="text-xs text-black uppercase bg-gray-200 " style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
-                                        <tr>
-                                            <th scope="col" className="px-6 py-3">
-                                                S.No
-                                            </th>
+                               
+                               
+   {user && user.length > 0 ?(
 
-                                            <th scope="col" className="px-6 py-3">
-                                                Name
-                                            </th>
-                                            <th scope="col" className="px-6 py-3">
-                                                Email
-                                            </th>
-                                            <th scope="col" className="px-6 py-3">
-                                                Uid
-                                            </th>
-                                           
-                                        </tr>
-                                    </thead>
-                                   {user.map((item,index)=>{
-                                    // console.log("khhhhj",user)
-                                    const {name,uid,email,date} = item;
-                                    return(
-                                        <tbody>
-                                        <tr className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
-                                            <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                               {index + 1}.
-                                            </td>
-                                            <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                {name}
-                                            </td>
-                                            <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                {email}
-                                            </td>
-                                            <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
-                                                {uid}
-                                            </td>
+<table className="w-full text-sm text-left text-gray-500 dark:text-gray-400">
 
-                                        </tr>
-                                    </tbody>
-                                    )
-                                   })}
-                                </table>
+
+<thead className="text-xs text-black uppercase bg-gray-200 " style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
+    <tr>
+        <th scope="col" className="px-6 py-3">
+            S.No
+        </th>
+
+        <th scope="col" className="px-6 py-3">
+            Name
+        </th>
+        <th scope="col" className="px-6 py-3">
+            Email
+        </th>
+        <th scope="col" className="px-6 py-3">
+            Uid
+        </th>
+       
+    </tr>
+</thead>
+{user.map((item,index)=>{
+// console.log("khhhhj",user)
+const {name,uid,email,date} = item;
+return(
+    <tbody>
+    <tr className="bg-gray-50 border-b  dark:border-gray-700" style={{ backgroundColor: mode === 'dark' ? 'rgb(46 49 55)' : '', color: mode === 'dark' ? 'white' : '', }} >
+        <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
+           {index + 1}.
+        </td>
+        <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
+            {name}
+        </td>
+        <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
+            {email}
+        </td>
+        <td className="px-6 py-4 text-black " style={{ color: mode === 'dark' ? 'white' : '' }}>
+            {uid}
+        </td>
+
+    </tr>
+</tbody>
+)
+})}
+</table>
+
+
+
+):(
+    <p>No users found</p>
+)}
+                               
+                               
+                               
 
 
             

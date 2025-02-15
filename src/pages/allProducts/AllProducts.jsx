@@ -1,6 +1,6 @@
 import React, { useContext, useEffect,useState } from 'react'
 import Filter from '../../components/filter/Filter'
-import ProductCard from '../../components/productCard/ProductCard'
+// import ProductCard from '../../components/productCard/ProductCard'
 import Layout from '../../components/layout/layout'
 import myContext from '../../context/data/myContext'
 import { useDispatch, useSelector } from 'react-redux'
